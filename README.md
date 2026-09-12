@@ -174,8 +174,6 @@ Expo Router поддерживает:
 
 # Create your first app
 
-## Краткий конспект
-
 1. Создать Expo-проект:
 
 `npx create-expo-app@latest StickerSmash`
