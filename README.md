@@ -4,24 +4,24 @@
 
 # 1. Создание проекта
 
-Expo — фреймворк для React Native, упрощающий разработку приложений для Android и iOS. Он предоставляет:
+Expo — фреймворк для React Native, который облегчает разработку приложений для Android и iOS.
 
-- файловую маршрутизацию;
+- файловая маршрутизацию;
 - готовые нативные модули;
 - инструменты для разработки;
 - интеграцию с Expo Application Services (EAS).
 
 Создание стандартного проекта:
 
-- npx create-expo-app@latest
+`npx create-expo-app@latest`
 
 Просмотр доступных примеров:
 
-- npx create-expo-app@latest --example
+`npx create-expo-app@latest --example`
 
 Создание проекта на основе конкретного примера:
 
-- npx create-expo-app@latest --example with-widgets
+`npx create-expo-app@latest --example with-widgets`
 
 
 # 2. Настройка среды
@@ -33,13 +33,13 @@ Expo — фреймворк для React Native, упрощающий разра
 - Expo CLI;
 - физическое устройство или эмулятор Android/iOS.
 
-Expo CLI устанавливается автоматически вместе с проектом и запускается через `npx`.
+Expo CLI устанавливается автоматически вместе с проектом и запускается через npx.
 
 # 3. Запуск разработки
 
 Запуск сервера разработки:
 
-- npx expo start
+`npx expo start`
 
 После запуска в терминале появляется QR-код. Его можно отсканировать телефоном, чтобы открыть приложение.
 
@@ -51,7 +51,7 @@ Expo CLI устанавливается автоматически вместе 
 
 Основной файл приложения в шаблоне:
 
-src/app/index.tsx
+`src/app/index.tsx`
 
 После изменения этого файла приложение автоматически обновляется.
 
@@ -59,7 +59,7 @@ src/app/index.tsx
 
 Если нужно удалить стандартный пример и начать разработку с чистого проекта, используется команда:
 
-- npm run reset-project
+`npm run reset-project`
 
 1. переносит существующие файлы в папку app-example;
 2. создаёт новую папку приложения;
@@ -71,14 +71,13 @@ Expo CLI
 
 Основные команды:
 
-| Команда | Назначение |
-| npx expo start | Запуск сервера разработки |
-| npx expo prebuild | Создание нативных папок Android и iOS |
-| npx expo run:android | Локальная сборка Android-приложения |
-| npx expo run:ios | Локальная сборка iOS-приложения |
-| npx expo install package-name | Установка совместимой библиотеки |
-| npx expo install --fix | Исправление версий зависимостей |
-| npx expo lint | Настройка или запуск ESLint |
+1. `npx expo start` - Запуск сервера разработки
+2. `npx expo prebuild` - Создание нативных папок Android и iOS
+3. `npx expo run:android` - Локальная сборка Android-приложения
+4. `npx expo run:ios` - Локальная сборка iOS-приложения
+5. `npx expo install package-name` - Установка совместимой библиотеки
+6. `npx expo install --fix ` - Исправление версий зависимостей
+7. `npx expo lint` - Настройка или запуск ESLint
 
 # EAS CLI
 
@@ -93,13 +92,13 @@ EAS CLI используется для работы с облачными се�
 
 Установка:
 
-- npm install --global eas-cli
+`npm install --global eas-cli`
 
 # Expo Doctor
 
 Инструмент для диагностики проекта:
 
-npx expo-doctor
+`npx expo-doctor`
 
 Он проверяет:
 
@@ -113,7 +112,7 @@ npx expo-doctor
 
 # Orbit
 
-Orbit — приложение для macOS, Windows и Linux, предназначенное для запуска и установки сборок Expo и EAS.
+Orbit - приложение для macOS, Windows и Linux, предназначенное для запуска и установки сборок Expo и EAS.
 
 Возможности Orbit:
 
@@ -129,7 +128,7 @@ Orbit — приложение для macOS, Windows и Linux, предназн�
 
 # React Navigation
 
-React Navigation — популярная библиотека навигации для React Native.
+React Navigation - популярная библиотека навигации для React Native.
 
 Она позволяет создавать:
 
