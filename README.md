@@ -207,7 +207,15 @@ assets/images
 
 # Add naviagtion
 
-### 1. Файловая маршрутизация
+### 1. Основы Expo Router
+
+Expo Router — это фреймворк маршрутизации на основе файлов для React Native и веб-приложений. Он управляет навигацией между экранами и использует одни и те же компоненты на нескольких платформах. Чтобы начать, нам нужно знать о следующих конвенциях:
+
+1. Каталог приложений: Специальная директория, содержащая только маршруты и их макеты. Любые файлы, добавленные в эту директорию, становятся экраном внутри нашего нативного приложения и страницей в интернете. В стандартном шаблоне он расположен на `src/app.`
+2. Корневая верстка: файл `src/app/_layout.tsx.` Он определяет общие элементы интерфейса, такие как заголовки и панели вкладок, чтобы они были согласованы между разными маршрутами.
+3. Правила имён файлов: Имена индексных файлов, такие как `index.tsx`, совпадают с родительским каталогом и не добавляют сегмент пути. Например, файл `index.tsx` в каталоге `src/app` совпадает с маршрутом./
+4. Файл маршрута экспортирует компонент React в качестве своего значения по умолчанию. Он может использовать либо , , , либо расширение..js.jsx.ts.tsx
+5. Android, iOS и веб имеют единую навигационную структуру.
 
 Expo Router создаёт маршруты на основе файлов в `src/app`:
 
@@ -219,7 +227,12 @@ Expo Router создаёт маршруты на основе файлов в `s
 
 Файл маршрута должен экспортировать React-компонент по умолчанию.
 
-### 2. Stack
+### 2. Добавьте новый экран в стек
+
+Внутри `src/app/_layout.tsx`:
+
+1. Добавьте компонент и проп для обновления названия маршрута.<Stack.Screen />options/about
+2. Обновите название маршрута, добавив проп./indexHomeoptions
 
 Stack — навигатор стека. Он открывает экраны последовательно, как страницы поверх друг друга: например, переход с Home на About добавляет About поверх Home.
 
@@ -246,11 +259,37 @@ export default function RootLayout() {
 Для навигации используется Link:
 
 ```
-import { Link } from 'expo-router';
+import { Text, View, StyleSheet } from 'react-native';
+ import { Link } from 'expo-router'; 
 
-<Link href="/about">
-  Go to About screen
-</Link>
+export default function Index() {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.text}>Home screen</Text>
+      <Link href="/about" style={styles.button}>
+        Go to About screen
+      </Link>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#25292e',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  text: {
+    color: '#fff',
+  },
+  button: {
+    fontSize: 20,
+    textDecorationLine: 'underline',
+    color: '#fff',
+  },
+});
+
 ```
 
 href указывает путь, на который перейдёт пользователь.
@@ -260,16 +299,37 @@ href указывает путь, на который перейдёт поль�
 Файл +not-found.tsx отображается, если пользователь перешёл по неправильному адресу.
 
 ```
+import { View, StyleSheet } from 'react-native';
 import { Link, Stack } from 'expo-router';
 
 export default function NotFoundScreen() {
   return (
     <>
-      <Stack.Screen options={{ title: 'Not Found' }} />
-      <Link href="/">Вернуться на главную</Link>
+      <Stack.Screen options={{ title: 'Oops! Not Found' }} />
+      <View style={styles.container}>
+        <Link href="/" style={styles.button}>
+          Go back to Home screen!
+        </Link>
+      </View>
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#25292e',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  button: {
+    fontSize: 20,
+    textDecorationLine: 'underline',
+    color: '#fff',
+  },
+});
+
 ```
 
 ### 5. Нижние вкладки
@@ -335,17 +395,37 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 
 ``` 
- screenOptions={{
-    tabBarActiveTintColor: '#ffd33d',
-    headerStyle: {
-      backgroundColor: '#25292e',
-    },
-    headerShadowVisible: false,
-    headerTintColor: '#fff',
-    tabBarStyle: {
-      backgroundColor: '#25292e',
-    },
-  }}
+import { Tabs } from 'expo-router';
+import Ionicons from '@expo/vector-icons/Ionicons';
+
+export default function TabLayout() {
+  return (
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: '#ffd33d',
+      }}
+    >
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Home',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'home-sharp' : 'home-outline'} color={color} size={24} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="about"
+        options={{
+          title: 'About',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'information-circle' : 'information-circle-outline'} color={color} size={24}/>
+          ),
+        }}
+      />
+    </Tabs>
+  );
+}
 ```
 
 # Build a screen
@@ -366,13 +446,39 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 Создаётся переиспользуемый компонент ImageViewer:
 
 ```
-type Props = {
-  imgSource: ImageSourcePropType;
-};
+import { View, StyleSheet } from 'react-native';
+ import { Image } from 'expo-image'; 
 
-export default function ImageViewer({ imgSource }: Props) {
-  return <Image source={imgSource} style={styles.image} />;
+
+const PlaceholderImage = require('@/assets/images/background-image.png');
+
+
+export default function Index() {
+  return (
+    <View style={styles.container}>
+      <View style={styles.imageContainer}>
+        <Image source={PlaceholderImage} style={styles.image} />
+      </View>
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#25292e',
+    alignItems: 'center',
+  },
+  imageContainer: {
+    flex: 1,
+  },
+  image: {
+    width: 320,
+    height: 440,
+    borderRadius: 18,
+  },
+});
+
 ```
 
 Изображение передаётся через проп imgSource:
@@ -408,18 +514,86 @@ src
 Pressable используется для обработки нажатий:
 
 ```
-<Pressable
-  style={styles.button}
-  onPress={() => alert('You pressed a button.')}
->
-  <Text style={styles.buttonLabel}>{label}</Text>
-</Pressable>
+import { StyleSheet, View, Pressable, Text } from 'react-native';
+
+type Props = {
+  label: string;
+};
+
+export default function Button({ label }: Props) {
+  return (
+    <View style={styles.buttonContainer}>
+      <Pressable style={styles.button} onPress={() => alert('You pressed a button.')}>
+        <Text style={styles.buttonLabel}>{label}</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  buttonContainer: {
+    width: 320,
+    height: 68,
+    marginHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 3,
+  },
+  button: {
+    borderRadius: 10,
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  buttonLabel: {
+    color: '#fff',
+    fontSize: 16,
+  },
+});
+
 ```
 
 Текст кнопки передаётся через проп:
 
 ```
-<Button label="Use this photo" />
+import { View, StyleSheet } from 'react-native';
+
+import Button from '@/components/button'; 
+import ImageViewer from '@/components/image-viewer';
+
+const PlaceholderImage = require("@/assets/images/background-image.png");
+
+export default function Index() {
+  return (
+    <View style={styles.container}>
+      <View style={styles.imageContainer}>
+        <ImageViewer imgSource={PlaceholderImage} />
+      </View>
+      <View style={styles.footerContainer}>
+        <Button label="Choose a photo" />
+        <Button label="Use this photo" />
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#25292e',
+    alignItems: 'center',
+  },
+  imageContainer: {
+    flex: 1,
+  },
+  footerContainer: {
+    flex: 1 / 3,
+    alignItems: 'center',
+  },
+});
+
 ```
 
 ### 5. Темизация кнопки
@@ -427,7 +601,67 @@ Pressable используется для обработки нажатий:
 Для первой кнопки добавляется необязательный проп:
 
 ```
-theme?: 'primary';
+import { StyleSheet, View, Pressable, Text } from 'react-native';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+
+type Props = {
+  label: string;
+  theme?: 'primary';
+};
+
+export default function Button({ label, theme }: Props) {
+  if (theme === 'primary') {
+    return (
+      <View
+        style={[
+          styles.buttonContainer,
+          { borderWidth: 4, borderColor: '#ffd33d', borderRadius: 18 },
+        ]}>
+        <Pressable
+          style={[styles.button, { backgroundColor: '#fff' }]}
+          onPress={() => alert('You pressed a button.')}>
+          <FontAwesome name="picture-o" size={18} color="#25292e" style={styles.buttonIcon} />
+          <Text style={[styles.buttonLabel, { color: '#25292e' }]}>{label}</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.buttonContainer}>
+      <Pressable style={styles.button} onPress={() => alert('You pressed a button.')}>
+        <Text style={styles.buttonLabel}>{label}</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  buttonContainer: {
+    width: 320,
+    height: 68,
+    marginHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 3,
+  },
+  button: {
+    borderRadius: 10,
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  buttonIcon: {
+    paddingRight: 8,
+  },
+  buttonLabel: {
+    color: '#fff',
+    fontSize: 16,
+  },
+});
+
 ```
 
 Использование:
@@ -481,7 +715,73 @@ npx expo install expo-image-picker
 npx expo start
 ```
 
-### 2. Запуск выбора изображения
+### 2. Обновить компонент кнопок
+
+При нажатии основной кнопки мы вызовем функцию компонента. Обновите проп компонента в src/components/button.tsx:pickImageAsync()ButtononPressButton
+
+```
+import { StyleSheet, View, Pressable, Text } from 'react-native';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+
+type Props = {
+  label: string;
+  theme?: 'primary';
+  onPress?: () => void;
+};
+
+export default function Button({ label, theme, onPress }: Props) {
+  if (theme === 'primary') {
+    return (
+      <View
+        style={[
+          styles.buttonContainer,
+          { borderWidth: 4, borderColor: '#ffd33d', borderRadius: 18 },
+        ]}>
+        <Pressable style={[styles.button, { backgroundColor: '#fff' }]} onPress={onPress}>
+          <FontAwesome name="picture-o" size={18} color="#25292e" style={styles.buttonIcon} />
+          <Text style={[styles.buttonLabel, { color: '#25292e' }]}>{label}</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.buttonContainer}>
+      <Pressable style={styles.button} onPress={() => alert('You pressed a button.')}>
+        <Text style={styles.buttonLabel}>{label}</Text>
+      </Pressable>
+    </View>
+  );
+}
+```
+
+```
+const styles = StyleSheet.create({
+  buttonContainer: {
+    width: 320,
+    height: 68,
+    marginHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 3,
+  },
+  button: {
+    borderRadius: 10,
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  buttonIcon: {
+    paddingRight: 8,
+  },
+  buttonLabel: {
+    color: '#fff',
+    fontSize: 16,
+  },
+});
+```
 
 Импортируйте библиотеку:
 
@@ -596,23 +896,75 @@ return <Image source={imageSource} style={styles.image} />;
 # Create a modal
 
 ### 1. Состояние отображения кнопок
+Перед внедрением модала мы добавим три новые кнопки. Эти кнопки видны после того, как пользователь выбирает изображение из медиабиблиотеки или использует заполняющее изображение. Одна из этих кнопок запускает модаль отбора эмодзи.
 
-В index.tsx добавьте состояние:
+В `src/app/(tabs)/index.tsx`:
+
+1. Объявите переменную булевого состояния, , чтобы показать или скрыть кнопки, открывающие модаль, а также несколько других опций. Когда экран приложения загружается, мы устанавливаем так, чтобы опции не отображались перед выбором изображения. Когда пользователь выбирает изображение или использует заполнительное изображение, мы устанавливаем его на .showAppOptionsfalsetrue
+2. Обновите функцию, чтобы установить значение в после выбора изображения.pickImageAsync()showAppOptionstrue
+3. Обновите кнопку без темы, добавив реквизит со следующим значением.
+```
+import { View, StyleSheet } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { useState } from 'react';
+
+import Button from '@/components/button';
+import ImageViewer from '@/components/image-viewer';
+
+const PlaceholderImage = require('@/assets/images/background-image.png');
+
+export default function Index() {
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
+  const [showAppOptions, setShowAppOptions] = useState<boolean>(false);
+
+  const pickImageAsync = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setSelectedImage(result.assets[0].uri);
+      setShowAppOptions(true);
+    } else {
+      alert('You did not select any image.');
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.imageContainer}>
+        <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} />
+      </View>
+      {showAppOptions ? (
+        <View />
+      ) : (
+        <View style={styles.footerContainer}>
+          <Button theme="primary" label="Choose a photo" onPress={pickImageAsync} />
+          <Button label="Use this photo" onPress={() => setShowAppOptions(true)} />
+        </View>
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#25292e',
+    alignItems: 'center',
+  },
+  imageContainer: {
+    flex: 1,
+  },
+  footerContainer: {
+    flex: 1 / 3,
+    alignItems: 'center',
+  },
+});
 
 ```
-const [showAppOptions, setShowAppOptions] = useState(false);
-```
-
-После выбора изображения:
-
-```
-setShowAppOptions(true);
-```
-
-Кнопки отображаются условно:
-
-- если showAppOptions === false — кнопки выбора изображения;
-- если true — кнопки Reset, Add sticker и Save.
 
 ### 2. Компоненты кнопок
 
@@ -751,15 +1103,48 @@ const scaleImage = useSharedValue(imageSize);
 Жест двойного нажатия:
 
 ```
-const doubleTap = Gesture.Tap()
-  .numberOfTaps(2)
-  .onStart(() => {
-    if (scaleImage.value !== imageSize * 2) {
-      scaleImage.value *= 2;
-    } else {
-      scaleImage.value = Math.round(scaleImage.value / 2);
-    }
+import { ImageSourcePropType, View } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+
+type Props = {
+  imageSize: number;
+  stickerSource: ImageSourcePropType;
+};
+
+export default function EmojiSticker({ imageSize, stickerSource }: Props) {
+  const scaleImage = useSharedValue(imageSize);
+
+  const doubleTap = Gesture.Tap()
+    .numberOfTaps(2)
+    .onStart(() => {
+      if (scaleImage.value !== imageSize * 2) {
+        scaleImage.value = scaleImage.value * 2;
+      } else {
+        scaleImage.value = Math.round(scaleImage.value / 2);
+      }
+    });
+
+  const imageStyle = useAnimatedStyle(() => {
+    return {
+      width: withSpring(scaleImage.value),
+      height: withSpring(scaleImage.value),
+    };
   });
+
+  return (
+    <View style={{ top: -350 }}>
+       <GestureDetector gesture={doubleTap}>
+        <Animated.Image
+          source={stickerSource}
+          resizeMode="contain"
+          style={[{ width: imageSize, height: imageSize }, imageStyle]}
+        />
+      </GestureDetector>
+    </View>
+  );
+}
+
 ```
 
 Анимированный стиль:
@@ -879,29 +1264,144 @@ collapsable={false} необходимо для корректного захв�
 
 ### 4. Сделать и сохранить скриншот
 
-Импорты:
+Мы можем сделать скриншот представления, вызвав метод изнутри функции. Он принимает опциональный аргумент, при котором мы можем передать и области для захвата скриншотов. Подробнее о доступных вариантах можно прочитать в документации библиотеки`.captureRef()react-native-view-shotonSaveImageAsync()widthheight`
+
+Метод также возвращает обещание, которое выполняет URI скриншота. Мы передадим этот URI в качестве параметра `captureRef()MediaLibrary.saveToLibraryAsync()` и сохранить скриншот в медиабиблиотеке устройства.
+
+Внутри src/app/(tabs)/index.tsx обновите функцию следующим кодом:`onSaveImageAsync()`
 
 ```
+import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
+import { useEffect, useRef, useState } from 'react';
+import { ImageSourcePropType, StyleSheet, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { captureRef } from 'react-native-view-shot';
-```
 
-Функция сохранения:
+import Button from '@/components/button';
+import CircleButton from '@/components/circle-button';
+import EmojiList from '@/components/emoji-list';
+import EmojiPicker from '@/components/emoji-picker';
+import IconButton from '@/components/icon-button';
+import ImageViewer from '@/components/image-viewer';
 
-```
-const onSaveImageAsync = async () => {
-  try {
-    const localUri = await captureRef(imageRef, {
-      height: 440,
+import EmojiSticker from '@/components/emoji-sticker';
+
+const PlaceholderImage = require('@/assets/images/background-image.png');
+
+export default function Index() {
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(
+    undefined
+  );
+  const [showAppOptions, setShowAppOptions] = useState<boolean>(false);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [pickedEmoji, setPickedEmoji] = useState<
+    ImageSourcePropType | undefined
+  >(undefined);
+  const [permissionResponse, requestPermission] = ImagePicker.useMediaLibraryPermissions();
+  const imageRef = useRef<View>(null);
+
+  useEffect(() => {
+    if (!permissionResponse?.granted) {
+      requestPermission();
+    }
+  }, []);
+
+  const pickImageAsync = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
       quality: 1,
     });
 
-    await MediaLibrary.saveToLibraryAsync(localUri);
-    alert('Saved!');
-  } catch (error) {
-    console.log(error);
-  }
-};
+    if (!result.canceled) {
+      setSelectedImage(result.assets[0].uri);
+      setShowAppOptions(true);
+    } else {
+      alert('You did not select any image.');
+    }
+  };
+
+  const onReset = () => {
+    setShowAppOptions(false);
+  };
+
+  const onAddSticker = () => {
+    setIsModalVisible(true);
+  };
+
+  const onModalClose = () => {
+    setIsModalVisible(false);
+  };
+
+  const onSaveImageAsync = async () => {
+    try {
+      const localUri = await captureRef(imageRef, {
+        height: 440,
+        quality: 1,
+      });
+
+      await MediaLibrary.saveToLibraryAsync(localUri);
+      if (localUri) {
+        alert('Saved!');
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  return (
+    <GestureHandlerRootView style={styles.container}>
+      <View style={styles.imageContainer}>
+        <View ref={imageRef} collapsable={false}>
+          <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} />
+          {pickedEmoji && <EmojiSticker imageSize={40} stickerSource={pickedEmoji} />}
+        </View>
+      </View>
+      {showAppOptions ? (
+        <View style={styles.optionsContainer}>
+          <View style={styles.optionsRow}>
+            <IconButton icon="refresh" label="Reset" onPress={onReset} />
+            <CircleButton onPress={onAddSticker} />
+            <IconButton icon="save-alt" label="Save" onPress={onSaveImageAsync} />
+          </View>
+        </View>
+      ) : (
+        <View style={styles.footerContainer}>
+          <Button theme="primary" label="Choose a photo" onPress={pickImageAsync} />
+          <Button label="Use this photo" onPress={() => setShowAppOptions(true)} />
+        </View>
+      )}
+      <EmojiPicker isVisible={isModalVisible} onClose={onModalClose}>
+        <EmojiList onSelect={setPickedEmoji} onCloseModal={onModalClose} />
+      </EmojiPicker>
+    </GestureHandlerRootView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#25292e',
+    alignItems: 'center',
+  },
+  imageContainer: {
+    flex: 1,
+  },
+  footerContainer: {
+    flex: 1 / 3,
+    alignItems: 'center',
+  },
+  optionsContainer: {
+    position: 'absolute',
+    bottom: 80,
+  },
+  optionsRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+});
+
 ```
 
 captureRef() возвращает URI созданного изображения, который затем передаётся в saveToLibraryAsync().
@@ -935,6 +1435,152 @@ captureRef() возвращает URI созданного изображени�
 2. Импортируйте библиотеку из `.domtoimagedom-to-image`
 2. Обновите функцию, чтобы проверить, связана ли текущая платформа с этим свойством. Если это так, мы используем метод для преобразования и захвата тока в формате JPEG-изображения. В противном случае мы продолжим использовать ту же логику, что и для нативных платформ.`onSaveImageAsync()'web'Platform.OS'web'domtoimage.toJpeg()<View>`
 
+```
+import * as ImagePicker from 'expo-image-picker';
+import * as MediaLibrary from 'expo-media-library';
+import { useEffect, useRef, useState } from 'react';
+import { ImageSourcePropType, View, StyleSheet, Platform } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { captureRef } from 'react-native-view-shot';
+import domtoimage from 'dom-to-image';
+
+import Button from '@/components/button';
+import ImageViewer from '@/components/image-viewer';
+import IconButton from '@/components/icon-button';
+import CircleButton from '@/components/circle-button';
+import EmojiPicker from '@/components/emoji-picker';
+import EmojiList from '@/components/emoji-list';
+import EmojiSticker from '@/components/emoji-sticker';
+
+const PlaceholderImage = require('@/assets/images/background-image.png');
+
+export default function Index() {
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
+  const [showAppOptions, setShowAppOptions] = useState<boolean>(false);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [pickedEmoji, setPickedEmoji] = useState<ImageSourcePropType | undefined>(undefined);
+  const [permissionResponse, requestPermission] = ImagePicker.useMediaLibraryPermissions();
+  const imageRef = useRef<View>(null);
+
+  useEffect(() => {
+    if (!permissionResponse?.granted) {
+      requestPermission();
+    }
+  }, []);
+
+  const pickImageAsync = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setSelectedImage(result.assets[0].uri);
+      setShowAppOptions(true);
+    } else {
+      alert('You did not select any image.');
+    }
+  };
+
+  const onReset = () => {
+    setShowAppOptions(false);
+  };
+
+  const onAddSticker = () => {
+    setIsModalVisible(true);
+  };
+
+  const onModalClose = () => {
+    setIsModalVisible(false);
+  };
+
+  const onSaveImageAsync = async () => {
+    if (Platform.OS !== 'web') {
+      try {
+        const localUri = await captureRef(imageRef, {
+          height: 440,
+          quality: 1,
+        });
+
+        await MediaLibrary.saveToLibraryAsync(localUri);
+        if (localUri) {
+          alert('Saved!');
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      try {
+        const dataUrl = await domtoimage.toJpeg(imageRef.current, {
+          quality: 0.95,
+          width: 320,
+          height: 440,
+        });
+
+        let link = document.createElement('a');
+        link.download = 'sticker-smash.jpeg';
+        link.href = dataUrl;
+        link.click();
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  };
+
+  return (
+    <GestureHandlerRootView style={styles.container}>
+      <View style={styles.imageContainer}>
+        <View ref={imageRef} collapsable={false}>
+          <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} />
+          {pickedEmoji && <EmojiSticker imageSize={40} stickerSource={pickedEmoji} />}
+        </View>
+      </View>
+      {showAppOptions ? (
+        <View style={styles.optionsContainer}>
+          <View style={styles.optionsRow}>
+            <IconButton icon="refresh" label="Reset" onPress={onReset} />
+            <CircleButton onPress={onAddSticker} />
+            <IconButton icon="save-alt" label="Save" onPress={onSaveImageAsync} />
+          </View>
+        </View>
+      ) : (
+        <View style={styles.footerContainer}>
+          <Button theme="primary" label="Choose a photo" onPress={pickImageAsync} />
+          <Button label="Use this photo" onPress={() => setShowAppOptions(true)} />
+        </View>
+      )}
+      <EmojiPicker isVisible={isModalVisible} onClose={onModalClose}>
+        <EmojiList onSelect={setPickedEmoji} onCloseModal={onModalClose} />
+      </EmojiPicker>
+    </GestureHandlerRootView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#25292e',
+    alignItems: 'center',
+  },
+  imageContainer: {
+    flex: 1,
+  },
+  footerContainer: {
+    flex: 1 / 3,
+    alignItems: 'center',
+  },
+  optionsContainer: {
+    position: 'absolute',
+    bottom: 80,
+  },
+  optionsRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+});
+
+```
 ## Configure status bar, splash screen and app icon
 ### Настройте строку статуса
 `expo-status-bar` Библиотека предустановленна в каждом проекте, созданном с использованием . Эта библиотека предоставляет компонент для настройки стиля строки статуса приложения.`create-expo-appStatusBar`
@@ -943,6 +1589,24 @@ captureRef() возвращает URI созданного изображени�
 
 1. Импортировать из .StatusBarexpo-status-bar
 2. Сгруппируйте существующие компоненты с компонентом Fragment от React.StatusBarStack
+```
+import { Stack } from 'expo-router';
+
+import { StatusBar } from 'expo-status-bar';
+
+
+export default function RootLayout() {
+  return (
+    <>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack>
+      <StatusBar style="light" />
+    </>
+  );
+}
+
+```
 
 ### Иконка изображения
 Как и изображение заставки, свойство в файле app.json настраивает путь иконки приложения. По умолчанию новый проект Expo определяет правильный путь к . Нам не нужно ничего менять.`"icon""./assets/images/icon.png"`
@@ -956,6 +1620,19 @@ The `expo-splash-screen` Плагин уже предустановлен в к�
 
 В app.json году плагин уже настроен так, чтобы использовать иконку приложения в качестве изображения заставки (предоставленного в загружаемых ассетах) с следующим фрагментом, так что нам не нужно ничего менять:`expo-splash-screen`
 
+```
+{
+  "plugins": [
+    [
+      "expo-splash-screen",
+      {
+        "image": "./assets/images/splash-icon.png"
+      }
+    ]
+  ]
+}
+
+```
 Однако для тестирования заставки мы не можем использовать Expo Go или билд для разработки. Чтобы проверить, нам нужно создать превью или производственную версию нашего приложения. Рекомендуем ознакомиться с следующими ресурсами, чтобы узнать больше о конфигурации заставки и способах её протестировать:
 
 1. Создайте руководство по иконкам splash screen, чтобы узнать, как настраивается иконка splash screen.
