@@ -19,6 +19,7 @@ export default function TabLayout() {
   }}
 >
 
+
       <Tabs.Screen
         name="index"
         options={{
@@ -37,6 +38,20 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+  name="clock"
+  options={{
+    title: 'Clock',
+    tabBarIcon: ({ color, focused }) => (
+      <Ionicons
+        name={focused ? 'time' : 'time-outline'}
+        color={color}
+        size={24}
+      />
+    ),
+  }}
+/>
+
     </Tabs>
   );
 }
